@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>ノート印刷システム仕様書</title>
+<style>
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    background-color: #F7F5F2;
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+    color: #3D3D3D;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 40px;
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+  }
+  .content {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #3D3D3D;
+  }
+  .content h1, .content h2, .content h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: #3D3D3D;
+  }
+  .content h1 { font-size: 20px; }
+  .content h2 { font-size: 18px; }
+  .content h3 { font-size: 16px; }
+  .content p { margin: 0.8em 0; }
+  .content ul, .content ol { padding-left: 1.5em; }
+  .content li { margin: 0.3em 0; }
+  .content blockquote {
+    margin: 1em 0;
+    padding: 12px 20px;
+    background: #FAF9F7;
+    border-left: 3px solid #E8D5CF;
+    border-radius: 4px;
+    color: #6B6560;
+  }
+  .content code {
+    background: #F0EDE8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .content pre {
+    background: #F0EDE8;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  .content pre code {
+    background: none;
+    padding: 0;
+  }
+  .content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+  }
+  .content th, .content td {
+    border: 1px solid #E0DCD8;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 14px;
+  }
+  .content th {
+    background: #FAF9F7;
+    font-weight: 600;
+  }
+  .meta {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #F0EDE8;
+    font-size: 12px;
+    color: #B8B0A8;
+  }
+  .share-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #F0EDE8;
+  }
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid #E0DCD8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #6B6560;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .share-btn:hover {
+    background: #FAF9F7;
+  }
+  .share-line {
+    color: #06C755;
+    border-color: #06C755;
+  }
+  .share-line:hover {
+    background: #F0FAF4;
+  }
+  .expired {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .expired .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .expired .message {
+    font-size: 16px;
+    color: #8C8278;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div id="expired-view" class="expired" style="display:none;">
+      <div class="message">この文書の公開期限が終了しました。</div>
+    </div>
+    <div id="content-view">
+      <div class="share-bar">
+        <button class="share-btn" id="copy-btn" onclick="copyLink()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          リンクをコピー
+        </button>
+        <a class="share-btn share-line" href="https://line.me/R/share?text=ノート印刷システム仕様書%0A" id="line-btn" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          LINEで送る
+        </a>
+      </div>
+      <h1 class="title">ノート印刷システム仕様書</h1>
+      <div class="content">
+        <h2>概要</h2>
+<p>ObsidianノートをWeb公開（QRコード付き）+ A4印刷するシステム。Claude Codeから1コマンドで全フローが実行される。</p>
+<h2>フロー</h2>
+<pre><code>「このノートを印刷して」（Claude Codeへの指示）
+    ↓
+① Markdownノートを読み取り → HTML変換
+② UUIDv4ベースのURLでGitHub Pagesにデプロイ
+③ QRコード生成（公開URLから）
+④ ノート本文 + QRコード を A4レイアウトで合成
+⑤ Chrome headlessでPDF変換 → lpコマンドで印刷
+</code></pre>
+<h2>構成ファイル</h2>
+<table>
+<thead>
+<tr>
+<th>ファイル</th>
+<th>役割</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/.local/bin/obsidian-print-note.py</code></td>
+<td>メインスクリプト</td>
+</tr>
+<tr>
+<td><code>~/dev/3kuni.github.io/p/{uuid}.html</code></td>
+<td>公開されたノートHTML</td>
+</tr>
+<tr>
+<td><code>~/dev/3kuni.github.io/p/manifest.json</code></td>
+<td>公開ノート管理台帳</td>
+</tr>
+</tbody>
+</table>
+<h2>コマンド</h2>
+<h3>基本（公開 + 印刷）</h3>
+<pre><code class="language-bash">python3 ~/.local/bin/obsidian-print-note.py --file &quot;ノートのパス&quot;
+</code></pre>
+<h3>オプション</h3>
+<table>
+<thead>
+<tr>
+<th>フラグ</th>
+<th>効果</th>
+<th>デフォルト</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--expires N</code></td>
+<td>有効期限をN日に設定</td>
+<td>30日</td>
+</tr>
+<tr>
+<td><code>--no-print</code></td>
+<td>PDF生成まで（印刷しない）</td>
+<td>印刷する</td>
+</tr>
+<tr>
+<td><code>--cleanup</code></td>
+<td>期限切れノートを削除してpush</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h2>セキュリティ</h2>
+<table>
+<thead>
+<tr>
+<th>対策</th>
+<th>方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URL推測不可</td>
+<td>UUIDv4（122bit乱数）</td>
+</tr>
+<tr>
+<td>検索エンジン除外</td>
+<td><code>&lt;meta name="robots" content="noindex, nofollow"&gt;</code></td>
+</tr>
+<tr>
+<td>表示期限（即時）</td>
+<td>HTML内のJavaScriptで期限チェック、期限切れならコンテンツ非表示</td>
+</tr>
+<tr>
+<td>表示期限（確実）</td>
+<td><code>--cleanup</code> で期限切れHTMLをgit rm + push</td>
+</tr>
+</tbody>
+</table>
+<h2>公開URL形式</h2>
+<pre><code>https://3kuni.github.io/p/{uuid}.html
+</code></pre>
+<ul>
+<li>例: <code>https://3kuni.github.io/p/a3f8b2c1-7e4d-4f1a-9b2e-1234567890ab.html</code></li>
+</ul>
+<h2>印刷レイアウト</h2>
+<ul>
+<li>用紙: A4</li>
+<li>ヘッダー: タイトル + 印刷日 + 公開期限</li>
+<li>本文: Markdown変換済みHTML（wikiリンクはノート名に変換）</li>
+<li>フッター（右下固定）: QRコード + 「Web版はこちら」+ 期限表示</li>
+</ul>
+<h2>管理台帳（manifest.json）</h2>
+<pre><code class="language-json">{
+  &quot;notes&quot;: [
+    {
+      &quot;uuid&quot;: &quot;a3f8b2c1-...&quot;,
+      &quot;title&quot;: &quot;ノート名&quot;,
+      &quot;created&quot;: &quot;2026-03-30&quot;,
+      &quot;expires&quot;: &quot;2026-04-29&quot;,
+      &quot;source_folder&quot;: &quot;40_CORE&quot;
+    }
+  ]
+}
+</code></pre>
+<h2>依存関係</h2>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python 3</td>
+<td>スクリプト実行</td>
+</tr>
+<tr>
+<td><code>markdown</code> (pip)</td>
+<td>Markdown → HTML変換</td>
+</tr>
+<tr>
+<td><code>qrcode</code> + <code>pillow</code> (pip)</td>
+<td>QRコード生成</td>
+</tr>
+<tr>
+<td>Google Chrome</td>
+<td>headlessモードでPDF変換</td>
+</tr>
+<tr>
+<td><code>lp</code> (macOS標準)</td>
+<td>プリンターへ印刷ジョブ送信</td>
+</tr>
+<tr>
+<td>Git + GitHub Pages</td>
+<td>Web公開</td>
+</tr>
+</tbody>
+</table>
+<h2>処理詳細</h2>
+<h3>Markdown変換時の処理</h3>
+<ol>
+<li>YAML frontmatterの除去</li>
+<li>Obsidian wikiリンク <code>note</code> → ノート名のプレーンテキストに変換</li>
+<li>タイトルと同名のH1見出しを除去（印刷ヘッダーと重複するため）</li>
+</ol>
+<h3>期限切れ時の動作</h3>
+<ul>
+<li>Web版: JavaScriptが期限をチェックし「この文書の公開期限が終了しました」を表示</li>
+<li>cleanup実行時: HTMLファイルをgit rmし、manifest.jsonから該当エントリを削除してpush</li>
+</ul>
+      </div>
+      <div class="meta">
+        公開期限: 2026-04-29
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function() {
+    var expires = new Date("2026-04-29T23:59:59");
+    if (new Date() > expires) {
+      document.getElementById("content-view").style.display = "none";
+      document.getElementById("expired-view").style.display = "block";
+      document.title = "期限切れ";
+    }
+    // LINEボタンにURLを追加
+    var lineBtn = document.getElementById("line-btn");
+    lineBtn.href = lineBtn.href + encodeURIComponent(window.location.href);
+  })();
+
+  function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+      var btn = document.getElementById("copy-btn");
+      btn.textContent = "コピーしました";
+      setTimeout(function() {
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> リンクをコピー';
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
