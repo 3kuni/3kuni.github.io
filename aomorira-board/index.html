@@ -384,7 +384,7 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
       <div class="site-header-inner">
         <h1>あおもリラ</h1>
         <div class="header-nav">
-          <span>花子さん</span>
+          <span>{{ nicknames[currentUser.name] || currentUser.name }}</span>
           <button @click="page = 'notifications'">通知<span v-if="unreadNotifCount > 0" class="notif-count">{{ unreadNotifCount }}</span></button>
           <button @click="page = 'settings'">設定</button>
         </div>
@@ -394,7 +394,7 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
     <!-- ===== THREAD LIST ===== -->
     <div v-if="page === 'main'" class="wrap">
       <div class="urgent-box" @click="openThread(urgentThread)">
-        <strong>&#9888; {{ urgentThread.title }}</strong>
+        <strong>&#9888; 【{{ urgentThread.team }}】{{ urgentThread.title }}</strong>
         <span style="font-size:15px;color:#888;margin-left:12px;">{{ urgentThread.date }}</span>
       </div>
 
@@ -425,7 +425,7 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
             <span class="pname nickname" @click.stop="toggleTap($event)">{{ nicknames[m.author] || m.author }}<span class="realname">{{ m.author }}</span></span>
             {{ m.time }}
           </div>
-          <div class="post-text">{{ m.text }}</div>
+          <div class="post-text" style="white-space:pre-line;">{{ m.text }}</div>
         </div>
         <hr>
       </div>
@@ -534,7 +534,7 @@ createApp({
       teams: ['レクチーム', '全体']
     }
 
-    const allTeams = ['全体', '総務チーム', 'レクチーム', 'ぱくぱくチーム', '会計']
+    const allTeams = ['全体', '講師', '総務チーム', 'レクチーム', 'ぱくぱくチーム', '会計']
 
     const nicknames = {
       '佐藤 花子': '花子1968',
@@ -554,6 +554,7 @@ createApp({
     const settings = ref({
       teamNotify: {
         '全体': false,
+        '講師': false,
         '総務チーム': false,
         'レクチーム': true,
         'ぱくぱくチーム': false,
@@ -564,10 +565,10 @@ createApp({
     const urgentThread = {
       id: 'urgent-1', team: '緊急',
       title: '鈴木さん本日欠席です',
-      author: '中島 正子（事務局長）', date: '4月1日 8:30',
-      firstAuthor: '中島 正子',
+      author: '事務局', date: '4月1日 8:30',
+      firstAuthor: '事務局',
       messages: [
-        { id: 1, author: '中島 正子', time: '4月1日 8:30', text: '鈴木さんが本日欠席のため、授業はお休みです。のちほどお電話します。ご確認よろしくお願いいたします。' }
+        { id: 1, author: '事務局', time: '4月1日 8:30', text: '佐藤さんへ\n鈴木さんから本日欠席の連絡がありました。本日の授業はお休みになります。のちほどお電話もいたします。' }
       ]
     }
 
@@ -579,6 +580,15 @@ createApp({
         messages: [
           { id: 1, author: '中島 正子', time: '3月31日 11:00', text: '先日鈴木さん（利用者）とお話ししたのですが、漢字の練習をもっとやりたいとのことでした。授業に取り入れられるか、どこかで相談したいです。' },
           { id: 2, author: '山本 浩一', time: '3月31日 15:30', text: 'ありがとうございます。次の集まりで話題にしましょう。' }
+        ]
+      },
+      {
+        id: 7, team: '講師',
+        title: '鈴木さんの漢字プリント、どれ使ってますか？',
+        firstAuthor: '佐藤 花子', lastDate: '3/31 14:00', unread: false,
+        messages: [
+          { id: 1, author: '佐藤 花子', time: '3月30日 11:00', text: '鈴木さんの漢字、だいぶ進んできたので次のプリントどうしようか迷ってます。みなさん何を使ってますか？' },
+          { id: 2, author: '中島 正子', time: '3月31日 14:00', text: '「にほんごドリル」の3巻を使ってますよ。レベルに合わせて選べるのでおすすめです😊' }
         ]
       },
       {
@@ -633,7 +643,7 @@ createApp({
     ])
 
     const notifications = [
-      { id: 1, urgent: true, category: '大事なお知らせ', text: '鈴木さん本日欠席です — 授業はお休みです', time: '今日 8:30', threadId: 'urgent-1' },
+      { id: 1, urgent: true, category: '大事なお知らせ', text: '【緊急】鈴木さん本日欠席です', time: '今日 8:30', threadId: 'urgent-1' },
       { id: 2, urgent: false, category: 'レクチーム', text: '「5月のレク、なにかやりたいですね〜」に木村さんが返信しました', time: '昨日 9:45', threadId: 3 },
       { id: 3, urgent: false, category: '全体', text: '「鈴木さんとお話ししたこと共有です」に山本さんが返信しました', time: '昨日 15:30', threadId: 2 }
     ]
