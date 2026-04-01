@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「あおもリラ」スタッフ掲示板</title>
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  font-size: 18px;
+  line-height: 1.8;
+  color: #333;
+  background: #fff;
+}
+a { color: #7c3aed; }
+a:hover { text-decoration: underline; }
+hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
+
+.wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ===== Login ===== */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+.login-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 40px 36px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.login-box h1 { font-size: 22px; margin-bottom: 4px; }
+.login-box .sub { font-size: 16px; color: #666; margin-bottom: 28px; }
+.login-box label {
+  display: block;
+  text-align: left;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  margin-bottom: 16px;
+}
+.login-box input:focus { outline: 2px solid #7c3aed; }
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  background: #7c3aed;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.login-box button:hover { background: #6d28d9; }
+.login-box .note { font-size: 14px; color: #888; margin-top: 20px; }
+
+/* ===== Header ===== */
+.site-header {
+  background: #6d28d9;
+  padding: 12px 0;
+}
+.site-header-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.site-header h1 { font-size: 20px; white-space: nowrap; color: #fff; }
+.header-nav {
+  font-size: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  white-space: nowrap;
+}
+.header-nav span { color: rgba(255,255,255,0.85); }
+.header-nav button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  position: relative;
+}
+.header-nav .notif-count {
+  background: #e67e22;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 2px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ===== Urgent ===== */
+.urgent-box {
+  background: #fef7ee;
+  border: 1px solid #f0c68a;
+  border-left: 4px solid #e67e22;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 20px 0;
+  cursor: pointer;
+}
+.urgent-box:hover { background: #fdf2e3; }
+.urgent-box strong { color: #b45309; }
+
+/* ===== Thread List ===== */
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+  color: #1a1a2e;
+}
+.thread-list {
+  margin-bottom: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+.thread-row {
+  display: block;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.thread-row:hover { background: #faf8ff; }
+.thread-row.unread {
+  background: #f3edff;
+}
+.thread-row.unread:hover { background: #ebe3ff; }
+.thread-row .title-link {
+  color: #7c3aed;
+  text-decoration: underline;
+}
+.thread-row.unread .title-link { font-weight: bold; }
+.thread-row .meta {
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ===== Thread Detail ===== */
+.back-area {
+  margin: 16px 0;
+  font-size: 16px;
+}
+.back-area button {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.thread-heading {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+.thread-info {
+  font-size: 15px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.post-item {
+  padding: 14px 0;
+}
+.post-meta {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 4px;
+}
+.post-meta .pnum { font-weight: bold; color: #7c3aed; margin-right: 6px; }
+.post-meta .pname { font-weight: bold; color: #333; position: relative; cursor: default; }
+.nickname { border-bottom: 1px dotted #999; }
+.nickname .realname {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: #333;
+  color: #fff;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-bottom: 4px;
+  z-index: 10;
+}
+.nickname:hover .realname,
+.nickname.tapped .realname { display: block; }
+.post-text {
+  font-size: 18px;
+  color: #333;
+}
+
+/* Reply */
+.reply-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 18px;
+  margin: 20px 0 32px;
+  background: #f9fafb;
+}
+.reply-box h3 { font-size: 17px; margin-bottom: 10px; }
+.reply-box .reply-name {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #555;
+}
+.reply-box textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  font-size: 18px;
+  font-family: inherit;
+  line-height: 1.7;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  resize: vertical;
+}
+.reply-box textarea:focus { outline: 2px solid #7c3aed; }
+.reply-box button {
+  padding: 10px 28px;
+  font-size: 17px;
+  font-weight: bold;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.reply-box button:hover { background: #6d28d9; }
+
+/* ===== Notifications ===== */
+.notif-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+.notif-table th {
+  text-align: left;
+  font-size: 14px;
+  padding: 10px 10px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-weight: 600;
+}
+.notif-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 17px;
+  vertical-align: middle;
+}
+.notif-table tr.clickable { cursor: pointer; }
+.notif-table tr.clickable:hover { background: #f8f8ff; }
+.notif-table .urgent-row { background: #fff8ee; }
+.notif-table .urgent-row:hover { background: #fff3de; }
+.cat-label { font-weight: bold; white-space: nowrap; }
+.cat-urgent { color: #b45309; }
+.cat-normal { color: #7c3aed; }
+
+/* ===== Settings ===== */
+.settings-area { margin: 16px 0 32px; }
+.settings-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.settings-group h3 {
+  font-size: 18px;
+  background: #f9fafb;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.settings-group .sg-note {
+  font-size: 15px;
+  color: #666;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  line-height: 1.6;
+}
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 17px; font-weight: bold; }
+.setting-desc { font-size: 15px; color: #666; margin-top: 2px; }
+.forced-label { font-size: 13px; color: #7c3aed; font-weight: bold; }
+.toggle {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #ccc;
+  border-radius: 28px;
+  transition: 0.3s;
+}
+.toggle-slider:before {
+  content: '';
+  position: absolute;
+  height: 22px; width: 22px;
+  left: 3px; bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.toggle input:checked + .toggle-slider { background: #7c3aed; }
+.toggle input:checked + .toggle-slider:before { transform: translateX(24px); }
+.toggle input:disabled + .toggle-slider { background: #7c3aed; opacity: 0.5; cursor: not-allowed; }
+.toggle input:disabled:checked + .toggle-slider:before { transform: translateX(24px); }
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .thread-row .meta {
+    display: block;
+    margin-top: 2px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- ===== LOGIN ===== -->
+  <div v-if="page === 'login'" class="login-page">
+    <div class="login-box">
+      <h1>「あおもリラ」<br>スタッフ掲示板</h1>
+      <p class="sub">ログインしてください</p>
+      <label>メールアドレス</label>
+      <input type="text" v-model="loginUser" />
+      <label>パスワード</label>
+      <input type="password" v-model="loginPass" />
+      <button @click="doLogin">ログイン</button>
+      <p class="note">スタッフ専用です。アカウントは事務局から発行されます。</p>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <template v-else>
+    <div class="site-header">
+      <div class="site-header-inner">
+        <h1>あおもリラ</h1>
+        <div class="header-nav">
+          <span>花子さん</span>
+          <button @click="page = 'notifications'">通知<span v-if="unreadNotifCount > 0" class="notif-count">{{ unreadNotifCount }}</span></button>
+          <button @click="page = 'settings'">設定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== THREAD LIST ===== -->
+    <div v-if="page === 'main'" class="wrap">
+      <div class="urgent-box" @click="openThread(urgentThread)">
+        <strong>&#9888; {{ urgentThread.title }}</strong>
+        <span style="font-size:15px;color:#888;margin-left:12px;">{{ urgentThread.date }}</span>
+      </div>
+
+      <div class="thread-list">
+        <div v-for="t in threads" :key="t.id"
+             class="thread-row" :class="{ unread: t.unread }"
+             @click="openThread(t)">
+          <span class="title-link">【{{ t.team }}】{{ t.title }}</span>
+          <span class="meta">（{{ nicknames[t.firstAuthor] || t.firstAuthor }}・{{ t.lastDate }}）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== THREAD DETAIL ===== -->
+    <div v-if="page === 'detail'" class="wrap">
+      <div class="back-area">
+        <button @click="page = 'main'">&larr; 話題一覧に戻る</button>
+      </div>
+
+      <h2 class="thread-heading">【{{ selectedThread.team }}】{{ selectedThread.title }}</h2>
+      <div class="thread-info">{{ selectedThread.messages.length }}件の投稿</div>
+
+      <hr>
+      <div v-for="(m, i) in selectedThread.messages" :key="m.id">
+        <div class="post-item">
+          <div class="post-meta">
+            <span class="pnum">{{ i + 1 }}</span>
+            <span class="pname nickname" @click.stop="toggleTap($event)">{{ nicknames[m.author] || m.author }}<span class="realname">{{ m.author }}</span></span>
+            {{ m.time }}
+          </div>
+          <div class="post-text">{{ m.text }}</div>
+        </div>
+        <hr>
+      </div>
+
+      <div class="reply-box">
+        <h3>返信を書く</h3>
+        <div class="reply-name">名前：{{ nicknames[currentUser.name] || currentUser.name }}</div>
+        <textarea v-model="replyText" placeholder="ここに返信を書いてください"></textarea>
+        <button @click="sendReply">投稿する</button>
+      </div>
+    </div>
+
+    <!-- ===== NOTIFICATIONS ===== -->
+    <div v-if="page === 'notifications'" class="wrap">
+      <div class="back-area">
+        <button @click="page = 'main'">&larr; 話題一覧に戻る</button>
+      </div>
+      <div class="section-title">通知一覧</div>
+
+      <table class="notif-table">
+        <thead>
+          <tr>
+            <th>話題</th>
+            <th>内容</th>
+            <th>日時</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in notifications" :key="n.id"
+              class="clickable" :class="{ 'urgent-row': n.urgent }"
+              @click="openThreadById(n.threadId)">
+            <td><span class="cat-label" :class="n.urgent ? 'cat-urgent' : 'cat-normal'">{{ n.category }}</span></td>
+            <td>{{ n.text }}</td>
+            <td style="white-space:nowrap;">{{ n.time }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div v-if="page === 'settings'" class="wrap">
+      <div class="back-area">
+        <button @click="page = 'main'">&larr; 話題一覧に戻る</button>
+      </div>
+      <div class="section-title">通知設定</div>
+
+      <div class="settings-area">
+        <div class="settings-group">
+          <h3>メール通知</h3>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">大事なお知らせ</div>
+              <span class="forced-label">常にオン</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked disabled />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div v-for="team in allTeams" :key="team" class="setting-row">
+            <div>
+              <div class="setting-label">{{ team }}</div>
+              <div class="setting-desc">{{ team }}に新しい書き込みがあったとき</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" v-model="settings.teamNotify[team]" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h3>アカウント情報</h3>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">名前</div>
+              <div class="setting-desc">{{ currentUser.name }}</div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">所属チーム</div>
+              <div class="setting-desc">{{ currentUser.team }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue
+
+createApp({
+  setup() {
+    const page = ref('login')
+    const loginUser = ref('hanako.sato@example.com')
+    const loginPass = ref('password')
+    const replyText = ref('')
+    const selectedThread = ref(null)
+
+    const currentUser = {
+      name: '佐藤 花子',
+      team: 'レクチーム',
+      teams: ['レクチーム', '全体']
+    }
+
+    const allTeams = ['全体', '総務チーム', 'レクチーム', 'ぱくぱくチーム', '会計']
+
+    const nicknames = {
+      '佐藤 花子': '花子1968',
+      '山本 浩一': 'やまこう',
+      '田中 勇一': '釣り好きゆういち',
+      '木村 和枝': 'カズさん',
+      '小林 裕子': 'ゆうちゃん',
+      '松田 幸子': 'ぱくぱく幸子',
+      '加藤 恵美': 'えみちゃん'
+    }
+
+    function toggleTap(e) {
+      const el = e.currentTarget
+      el.classList.toggle('tapped')
+    }
+
+    const settings = ref({
+      teamNotify: {
+        '全体': false,
+        '総務チーム': false,
+        'レクチーム': true,
+        'ぱくぱくチーム': false,
+        '会計': false
+      }
+    })
+
+    const urgentThread = {
+      id: 'urgent-1', team: '緊急',
+      title: '鈴木さん本日欠席です',
+      author: '中島 正子（事務局長）', date: '4月1日 8:30',
+      firstAuthor: '中島 正子',
+      messages: [
+        { id: 1, author: '中島 正子', time: '4月1日 8:30', text: '鈴木さんが本日欠席のため、授業はお休みです。のちほどお電話します。ご確認よろしくお願いいたします。' }
+      ]
+    }
+
+    const threads = ref([
+      {
+        id: 2, team: '全体',
+        title: '鈴木さんとお話ししたこと共有です',
+        firstAuthor: '中島 正子', lastDate: '3/31 15:30', unread: true,
+        messages: [
+          { id: 1, author: '中島 正子', time: '3月31日 11:00', text: '先日鈴木さん（利用者）とお話ししたのですが、漢字の練習をもっとやりたいとのことでした。授業に取り入れられるか、どこかで相談したいです。' },
+          { id: 2, author: '山本 浩一', time: '3月31日 15:30', text: 'ありがとうございます。次の集まりで話題にしましょう。' }
+        ]
+      },
+      {
+        id: 3, team: 'レクチーム',
+        title: '5月のレク、なにかやりたいですね〜',
+        firstAuthor: '田中 勇一', lastDate: '3/31 9:45', unread: true,
+        messages: [
+          { id: 1, author: '田中 勇一', time: '3月29日 16:00', text: '5月のレク、なにかアイディアありますか？学習のあとにみんなで楽しめるものがいいですよね😊' },
+          { id: 2, author: '佐藤 花子', time: '3月30日 10:30', text: 'かるたとかどうですかね？ことわざかるたとか、学習にもなりそうです。' },
+          { id: 3, author: '木村 和枝', time: '3月31日 9:45', text: 'かるたいいですね〜！景品とかちょっとあると盛り上がりそう🎵' }
+        ]
+      },
+      {
+        id: 4, team: '総務チーム',
+        title: '助成金の書類、見てもらえますか',
+        firstAuthor: '小林 裕子', lastDate: '3/30 16:40', unread: false,
+        messages: [
+          { id: 1, author: '小林 裕子', time: '3月28日 13:00', text: '下書きできたので目を通してもらえると助かります。' },
+          { id: 2, author: '高田 一男', time: '3月29日 11:15', text: '見ました！経費のところちょっと気になったので今度話しましょう。' },
+          { id: 3, author: '村田 敏夫', time: '3月30日 16:40', text: '領収書は来週持っていきますね。' }
+        ]
+      },
+      {
+        id: 1, team: '全体',
+        title: '総会の日、いつがいいですかね？',
+        firstAuthor: '山本 浩一', lastDate: '3/30 9:00', unread: false,
+        messages: [
+          { id: 1, author: '山本 浩一', time: '3月28日 10:15', text: 'そろそろ総会の日を決めないとですね。4月の後半あたりでどうでしょう？' },
+          { id: 2, author: '中島 正子', time: '3月29日 14:20', text: '19日（土）なら会場空いてましたよ〜✨' },
+          { id: 3, author: '佐藤 花子', time: '3月30日 9:00', text: '19日大丈夫です！' }
+        ]
+      },
+      {
+        id: 6, team: '会計',
+        title: '領収書お持ちの方〜',
+        firstAuthor: '加藤 恵美', lastDate: '3/29 9:30', unread: false,
+        messages: [
+          { id: 1, author: '加藤 恵美', time: '3月28日 15:00', text: '4月分そろそろ締めるので、領収書ある方は今週中にお願いしま〜す🙏' },
+          { id: 2, author: '小林 裕子', time: '3月29日 9:30', text: '了解です、明日持っていきます！' }
+        ]
+      },
+      {
+        id: 5, team: 'ぱくぱくチーム',
+        title: '5月のぱくぱく、メニュー決めましょう〜',
+        firstAuthor: '松田 幸子', lastDate: '3/28 9:10', unread: false,
+        messages: [
+          { id: 1, author: '松田 幸子', time: '3月25日 10:00', text: '5月のぱくぱくのメニュー、そろそろ決めたいです🍙 15人くらいの予定です。なにかいいアイディアありますか？' },
+          { id: 2, author: '石田 啓子', time: '3月26日 12:20', text: '蒸しパンとか手軽でいいかも。アレルギーの方もいるので確認しておきますね。' },
+          { id: 3, author: '松田 幸子', time: '3月28日 9:10', text: 'ありがとうございます！材料の買い出しもあるので、来週中には決めたいですね。' }
+        ]
+      }
+    ])
+
+    const notifications = [
+      { id: 1, urgent: true, category: '大事なお知らせ', text: '鈴木さん本日欠席です — 授業はお休みです', time: '今日 8:30', threadId: 'urgent-1' },
+      { id: 2, urgent: false, category: 'レクチーム', text: '「5月のレク、なにかやりたいですね〜」に木村さんが返信しました', time: '昨日 9:45', threadId: 3 },
+      { id: 3, urgent: false, category: '全体', text: '「鈴木さんとお話ししたこと共有です」に山本さんが返信しました', time: '昨日 15:30', threadId: 2 }
+    ]
+
+
+    const unreadNotifCount = computed(() => notifications.length)
+
+    function doLogin() { page.value = 'main' }
+
+    function openThread(thread) {
+      selectedThread.value = thread
+      thread.unread = false
+      page.value = 'detail'
+    }
+
+    function openThreadById(id) {
+      if (id === 'urgent-1') { openThread(urgentThread); return }
+      const t = threads.value.find(t => t.id === id)
+      if (t) openThread(t)
+    }
+
+    function sendReply() {
+      if (replyText.value.trim() && selectedThread.value) {
+        const now = new Date()
+        const month = now.getMonth() + 1
+        const day = now.getDate()
+        const hour = now.getHours()
+        const min = String(now.getMinutes()).padStart(2, '0')
+        const timeStr = month + '月' + day + '日 ' + hour + ':' + min
+        const newId = selectedThread.value.messages.length + 1
+        selectedThread.value.messages.push({
+          id: newId,
+          author: currentUser.name,
+          time: timeStr,
+          text: replyText.value
+        })
+        replyText.value = ''
+      }
+    }
+
+    return {
+      page, loginUser, loginPass, replyText,
+      currentUser, settings, allTeams, nicknames, urgentThread, threads,
+      notifications, unreadNotifCount,
+      selectedThread,
+      doLogin, openThread, openThreadById, sendReply, toggleTap
+    }
+  }
+}).mount('#app')
+</script>
+</body>
+</html>
